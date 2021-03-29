@@ -1,16 +1,18 @@
+'use strict';
+
 require('dotenv').config();
 
-const express = require('express');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const jwt = require('jsonwebtoken');
-const utils = require('./utils');
+var express = require('express');
+var cors = require('cors');
+var bodyParser = require('body-parser');
+var jwt = require('jsonwebtoken');
+var utils = require('./utils');
 
-const app = express();
-const port = process.env.PORT || 8080;
+var app = express();
+var port = process.env.PORT || 4000;
 
 // static user details
-const userData = {
+var userData = {
   userId: "929407",
   password: "password",
   name: "User",
@@ -24,7 +26,6 @@ app.use(cors());
 app.use(bodyParser.json());
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
-
 
 //middleware that checks if JWT token exists and verifies it if it does exist.
 //In all future routes, this helps to know if the request is authenticated or not.
@@ -47,18 +48,16 @@ app.use(function (req, res, next) {
   });
 });
 
-
 // request handlers
-app.get('/', (req, res) => {
+app.get('/', function (req, res) {
   if (!req.user) return res.status(401).json({ success: false, message: 'Invalid user.' });
   res.send('Hello' + req.user.name);
 });
 
-
 // validate the user credentials
 app.post('/users/signin', function (req, res) {
-  const user = req.body.username;
-  const pwd = req.body.password;
+  var user = req.body.username;
+  var pwd = req.body.password;
 
   // return 400 status if username/password is not exist
   if (!user || !pwd) {
@@ -77,13 +76,12 @@ app.post('/users/signin', function (req, res) {
   }
 
   // generate token
-  const token = utils.generateToken(userData);
+  var token = utils.generateToken(userData);
   // get basic user details
-  const userObj = utils.getCleanUser(userData);
+  var userObj = utils.getCleanUser(userData);
   // return the token along with user details
-  return res.json({ user: userObj, token });
+  return res.json({ user: userObj, token: token });
 });
-
 
 // verify the token and return it if it's valid
 app.get('/verifyToken', function (req, res) {
@@ -111,10 +109,10 @@ app.get('/verifyToken', function (req, res) {
     }
     // get basic user details
     var userObj = utils.getCleanUser(userData);
-    return res.json({ user: userObj, token });
+    return res.json({ user: userObj, token: token });
   });
 });
 
-app.listen(port, () => {
+app.listen(port, function () {
   console.log('Server started on: ' + port);
 });
